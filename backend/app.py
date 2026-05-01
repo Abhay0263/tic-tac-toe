@@ -6,11 +6,15 @@ import random
 app = Flask(__name__)
 CORS(app) 
 
+import os
+
 # 1. Database Connection (Move this UP)
 # Change host to "localhost" if you are not using Docker right now
+DB_HOST = os.environ.get("DB_HOST", "localhost")
+
 try:
     conn = mysql.connector.connect(
-        host="localhost", 
+        host=DB_HOST, 
         user="root",
         password="root",
         database="tic-tac-db"
@@ -27,37 +31,69 @@ players = []
 def home():
     return jsonify({"status": "Online", "message": "Tic Tac Toe API"}), 200
 
-@app.route("/start", methods=["POST"]) # Changed to match your script.js
+@app.route("/start", methods=["POST"])
 def new_game():
     global board, current_player, players
     data = request.json
-    username = data.get("username", "Guest")
+    mode = data.get("mode", "pvp")
+    player1 = data.get("player1", "Guest 1")
+    player2 = data.get("player2", "Bot") if mode == "bot" else data.get("player2", "Guest 2")
 
     cursor = conn.cursor()
     try:
-        cursor.execute("INSERT IGNORE INTO players (username) VALUES (%s)", (username,))
+        cursor.execute("INSERT IGNORE INTO players (username) VALUES (%s)", (player1,))
+        if mode == "pvp":
+            cursor.execute("INSERT IGNORE INTO players (username) VALUES (%s)", (player2,))
         conn.commit()
     except Exception as e:
         print(f"DB Error: {e}")
 
-    players = [username]
+    players = [player1, player2]
     board = [""] * 9
     current_player = "X"
     return jsonify({"message": "New game started", "board": board})
 
+@app.route("/check_username/<username>", methods=["GET"])
+def check_username(username):
+    try:
+        cursor = conn.cursor()
+        cursor.execute("SELECT 1 FROM players WHERE username = %s", (username,))
+        result = cursor.fetchone()
+        return jsonify({"exists": bool(result)})
+    except Exception as e:
+        print(f"Check Username DB Error: {e}")
+        return jsonify({"exists": False, "error": str(e)}), 500
+
 @app.route("/move", methods=["POST"])
 def move():
-    global board, current_player
+    global board, current_player, players
     data = request.json
     pos = data.get("position")
-    username = data.get("username")
 
     if board[pos] == "":
         board[pos] = current_player
         winner = check_winner()
+        
+        # Determine the username of the winning player
+        winning_username = players[0] if current_player == "X" else players[1]
+        
         if winner:
-            update_stats(username, "win")
+            if winning_username != "Bot":
+                update_stats(winning_username, "win")
+                
         current_player = "O" if current_player == "X" else "X"
+        
+        # Extremely basic bot implementation if bot mode is active and it's O's turn
+        if players[1] == "Bot" and current_player == "O" and not winner and "" in board:
+            available = [i for i, cell in enumerate(board) if cell == ""]
+            if available:
+                bot_move = random.choice(available)
+                board[bot_move] = "O"
+                winner = check_winner()
+                if winner: # Bot wins, no stats update needed
+                    pass
+                current_player = "X"
+                
         return jsonify({"board": board, "winner": winner, "next": current_player})
     return jsonify({"error": "Invalid move"}), 400
 

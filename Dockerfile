@@ -10,4 +10,4 @@ RUN chmod +x wait-for-db.sh
 
 COPY . .
 
-CMD ["python", "app.py","./wait-for-db.sh"]
+CMD ["python", "app.py"]

@@ -6,6 +6,8 @@ services:
       dockerfile: ../Dockerfile
     ports:
       - "5000:5000"
+    environment:
+      - DB_HOST=db2
     networks:
       - my-net2
     depends_on:
@@ -22,21 +24,21 @@ services:
       - my-net2
 
   db2:
-     image: mysql:8
-     container_name: db2
-     environment:
-       MYSQL_ROOT_PASSWORD: root
-       MYSQL_DATABASE: tic-tac-db
-     volumes:
-       - db_data:/var/lib/mysql
-       - ./backend/init.sql:/docker-entrypoint-initdb.d/init.sql
-     networks:
-       - my-net2
-     healthcheck:
-       test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot"]
-       interval: 5s
-       timeout: 5s
-       retries: 10
+    image: mysql:8
+    container_name: db2
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: tic-tac-db
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./backend/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - my-net2
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot" ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
 networks:
   my-net2:

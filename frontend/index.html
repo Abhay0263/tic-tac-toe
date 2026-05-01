@@ -42,6 +42,25 @@
         <button class="btn btn-success" onclick="resetGame()">Rematch</button>
       </div>
     </div>
+    <!-- Username Modal -->
+    <div id="username-modal" class="modal-overlay" style="display: none;">
+      <div class="modal-content card">
+        <h2 id="modal-title">Enter Usernames</h2>
+        <div class="input-group">
+          <label for="player1-input" id="p1-label">Player 1 Username:</label>
+          <input type="text" id="player1-input" class="modern-input" placeholder="Enter username...">
+        </div>
+        <div class="input-group" id="player2-group">
+          <label for="player2-input">Player 2 Username:</label>
+          <input type="text" id="player2-input" class="modern-input" placeholder="Enter username...">
+        </div>
+        <div class="button-group modal-buttons">
+          <button class="btn btn-primary" id="start-match-btn">Start Match</button>
+          <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+        </div>
+      </div>
+    </div>
+
   </div>
 
   <script src="script.js"></script>
