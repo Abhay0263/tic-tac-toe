@@ -1,0 +1,46 @@
+version: '3.8' # Upgraded from '3' to support 'service_healthy'
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: ../Dockerfile
+    ports:
+      - "5000:5000"
+    networks:
+      - my-net2
+    depends_on:
+      db2:
+        condition: service_healthy # Wait for the healthcheck to pass
+
+  frontend:
+    image: nginx:alpine
+    volumes:
+      - ./frontend:/usr/share/nginx/html:ro
+    ports:
+      - "8080:80"
+    networks:
+      - my-net2
+
+  db2:
+     image: mysql:8
+     container_name: db2
+     environment:
+       MYSQL_ROOT_PASSWORD: root
+       MYSQL_DATABASE: tic-tac-db
+     volumes:
+       - db_data:/var/lib/mysql
+       - ./backend/init.sql:/docker-entrypoint-initdb.d/init.sql
+     networks:
+       - my-net2
+     healthcheck:
+       test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot"]
+       interval: 5s
+       timeout: 5s
+       retries: 10
+
+networks:
+  my-net2:
+    driver: bridge
+
+volumes:
+  db_data:

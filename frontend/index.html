@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tic Tac Toe Pro</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <div id="toast-container" class="toast-container"></div>
+
+  <div class="app-container">
+    <header>
+      <h1>Tic Tac Toe</h1>
+      <p class="subtitle">Cyber Edition</p>
+    </header>
+
+    <div id="dashboard" class="card">
+      <div class="button-group">
+        <button class="btn btn-primary" onclick="startNewGame()">New Game</button>
+        <button class="btn btn-secondary" onclick="playWithBot()">Play With Bot</button>
+      </div>
+
+      <div class="leaderboard-section">
+        <h2>Leaderboard</h2>
+        <div id="leaderboard" class="stats-box">
+          <ul id="leaderboard-list">
+            <li>Loading stats...</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div id="game" class="card" style="display:none;">
+      <div id="status-display" style="margin-bottom: 15px; font-weight: bold;"></div>
+      <div id="board" class="grid-container"></div>
+      <div class="game-controls">
+        <button class="btn btn-danger" onclick="location.reload()">Quit</button>
+        <button class="btn btn-success" onclick="resetGame()">Rematch</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
