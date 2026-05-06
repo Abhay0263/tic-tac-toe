@@ -39,8 +39,32 @@ def new_game():
     mode = data.get("mode", "pvp")
     player1 = data.get("player1", "Guest 1")
     player2 = data.get("player2", "Bot") if mode == "bot" else data.get("player2", "Guest 2")
+    # Optional flag from client indicating user confirmed existing username
+    confirm = data.get("confirm", False)
 
     cursor = conn.cursor()
+    # Check if player1 already exists
+    cursor.execute("SELECT 1 FROM players WHERE username = %s", (player1,))
+    exists = cursor.fetchone() is not None
+    if exists and not confirm:
+        # Prompt client to confirm identity
+        return jsonify({
+            "exists": True,
+            "message": f"Username '{player1}' already exists. Are you this user?",
+            "prompt": "confirm"
+        }), 200
+    # Insert or ignore player records
+    # If player2 exists (in pvp mode), handle confirmation similarly
+    if mode == "pvp":
+        cursor.execute("SELECT 1 FROM players WHERE username = %s", (player2,))
+        exists2 = cursor.fetchone() is not None
+        confirm2 = data.get("confirm2", False)
+        if exists2 and not confirm2:
+            return jsonify({
+                "exists": True,
+                "message": f"Username '{player2}' already exists. Are you this user?",
+                "prompt": "confirm2"
+            }), 200
     try:
         cursor.execute("INSERT IGNORE INTO players (username) VALUES (%s)", (player1,))
         if mode == "pvp":
