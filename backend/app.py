@@ -1,5 +1,6 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS 
+import time
 import mysql.connector
 import random
 
@@ -11,6 +12,25 @@ import os
 # 1. Database Connection (Move this UP)
 # Change host to "localhost" if you are not using Docker right now
 DB_HOST = os.environ.get("DB_HOST", "localhost")
+
+def get_db_connection():
+    while True:
+        try:
+            connection = mysql.connector.connect(
+                host=DB_HOST,
+                user="root",
+                password="root",
+                database="tic-tac-db",
+                autocommit=True
+            )
+            print("Successfully connected to the database!")
+            return connection
+        except Exception as e:
+            print(f"Database not ready... {e}. Retrying in 2 seconds.")
+            time.sleep(2)
+
+# Establish initial connection
+conn = get_db_connection()
 
 try:
     conn = mysql.connector.connect(
