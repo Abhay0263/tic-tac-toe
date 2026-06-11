@@ -17,8 +17,7 @@ try:
         host=DB_HOST, 
         user="root",
         password="root",
-        database="tic-tac-db",
-        autocommit=True
+        database="tic-tac-db"
     )
 except Exception as e:
     print(f"Error connecting to DB: {e}")
