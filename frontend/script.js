@@ -24,7 +24,7 @@ window.onload = () => {
 };
 
 function updateLeaderboard() {
-  fetch("http://localhost:5000/leaderboard")
+  fetch("http://3.110.164.208:5000/leaderboard")
     .then(res => res.json())
     .then(data => {
       const list = document.getElementById("leaderboard-list");
@@ -104,7 +104,7 @@ function openModal(mode) {
 
     // Check DB
     try {
-      let res = await fetch(`http://localhost:5000/check_username/${p1}`);
+      let res = await fetch(`http://3.110.164.208:5000/check_username/${p1}`);
       if (res.ok) {
         let data = await res.json();
         if (data.exists) {
@@ -121,7 +121,7 @@ function openModal(mode) {
       }
 
       if (!botMode) {
-        res = await fetch(`http://localhost:5000/check_username/${p2}`);
+        res = await fetch(`http://3.110.164.208:5000/check_username/${p2}`);
         if (res.ok) {
           let data = await res.json();
           if (data.exists) {
@@ -170,7 +170,7 @@ function showCustomConfirm(msg) {
 
 async function startMatchOnServer() {
   try {
-    const res = await fetch("http://localhost:5000/start", {
+    const res = await fetch("http://3.110.164.208:5000/start", {
       method: "POST",
       headers: {"Content-Type": "application/json"},
       body: JSON.stringify({ player1: player1Name, player2: player2Name, mode: botMode ? "bot" : "pvp" })
@@ -198,7 +198,7 @@ function renderBoard(board) {
 
 async function makeMove(pos) {
   try {
-    const res = await fetch("http://localhost:5000/move", {
+    const res = await fetch("http://3.110.164.208:5000/move", {
       method: "POST",
       headers: {"Content-Type": "application/json"},
       body: JSON.stringify({ position: pos })
