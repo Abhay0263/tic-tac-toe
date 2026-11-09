@@ -1,6 +1,10 @@
-version: '3.8' # Upgraded from '3' to support 'service_healthy'
+version: '3.8'
+
 services:
   backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
     image: abhay0263/tic-tac-toe-backend:latest
     ports:
       - "5000:5000"
@@ -10,7 +14,7 @@ services:
       - my-net2
     depends_on:
       db2:
-        condition: service_healthy # Wait for the healthcheck to pass
+        condition: service_healthy
 
   frontend:
     image: nginx:alpine
@@ -36,7 +40,7 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
-  
+
 networks:
   my-net2:
     driver: bridge

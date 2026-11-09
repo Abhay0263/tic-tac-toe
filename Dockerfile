@@ -2,12 +2,12 @@ FROM python:3.10-slim
 
 WORKDIR /app
 
-COPY requirements.txt .
+COPY backend/requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
-RUN pip install -r requirements.txt
-COPY wait-for-db.sh .
+COPY backend/wait-for-db.sh .
 RUN chmod +x wait-for-db.sh
 
-COPY . .
+COPY backend/ .
 
-CMD ["python", "app.py"]
+CMD ["./wait-for-db.sh"]

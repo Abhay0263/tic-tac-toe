@@ -18,22 +18,27 @@ let botMode = false;
 let player1Name = "";
 let player2Name = "";
 
+// Dynamically resolve backend host relative to browser location
+const API_BASE_URL = window.location.hostname
+  ? `${window.location.protocol}//${window.location.hostname}:5000`
+  : "http://localhost:5000";
+
 window.onload = () => {
-  console.log("Page loaded, fetching leaderboard...");
+  console.log("Page loaded, fetching leaderboard from:", API_BASE_URL);
   updateLeaderboard();
 };
 
 function updateLeaderboard() {
-  fetch("http://3.110.164.208:5000/leaderboard")
+  fetch(`${API_BASE_URL}/leaderboard`)
     .then(res => res.json())
     .then(data => {
       const list = document.getElementById("leaderboard-list");
       if (list) {
-        if (data.length === 0) {
+        if (!data || data.length === 0) {
             list.innerHTML = "<li>No stats yet</li>";
         } else {
             list.innerHTML = data.map(p =>
-              `<li><span>${p.username}</span> <span>${p.wins} Wins</span></li>`
+              `<li><span>${p.username}</span> <span>${p.wins}W / ${p.losses || 0}L / ${p.draws || 0}D</span></li>`
             ).join("");
         }
       }
@@ -66,7 +71,7 @@ function startNewGame(isRematch = false) {
     openModal("pvp");
     return;
   }
-  startMatchOnServer();
+  startMatchOnServer(true, true);
 }
 
 function playWithBot(isRematch = false) {
@@ -75,7 +80,7 @@ function playWithBot(isRematch = false) {
     openModal("bot");
     return;
   }
-  startMatchOnServer();
+  startMatchOnServer(true, true);
 }
 
 function openModal(mode) {
@@ -97,14 +102,17 @@ function openModal(mode) {
       return;
     }
     
-    if (!botMode && p1 === p2) {
+    if (!botMode && p1.toLowerCase() === p2.toLowerCase()) {
       alert("Player 1 and Player 2 must have different usernames!");
       return;
     }
 
+    let p1Confirmed = false;
+    let p2Confirmed = false;
+
     // Check DB
     try {
-      let res = await fetch(`http://3.110.164.208:5000/check_username/${p1}`);
+      let res = await fetch(`${API_BASE_URL}/check_username/${encodeURIComponent(p1)}`);
       if (res.ok) {
         let data = await res.json();
         if (data.exists) {
@@ -115,13 +123,14 @@ function openModal(mode) {
             showToast("Please enter another name.");
             return;
           }
+          p1Confirmed = true;
+        } else {
+          p1Confirmed = true;
         }
-      } else {
-        console.warn("/check_username not found or error. Is the backend rebuilt?");
       }
 
       if (!botMode) {
-        res = await fetch(`http://3.110.164.208:5000/check_username/${p2}`);
+        res = await fetch(`${API_BASE_URL}/check_username/${encodeURIComponent(p2)}`);
         if (res.ok) {
           let data = await res.json();
           if (data.exists) {
@@ -132,18 +141,24 @@ function openModal(mode) {
               showToast("Please enter another name.");
               return;
             }
+            p2Confirmed = true;
+          } else {
+            p2Confirmed = true;
           }
         }
+      } else {
+        p2Confirmed = true;
       }
     } catch(err) {
       console.error("Error checking username:", err);
-      // We will allow it to continue if fetch fails, so the user isn't stuck if the backend isn't rebuilt
+      p1Confirmed = true;
+      p2Confirmed = true;
     }
 
     player1Name = p1;
     player2Name = p2;
     closeModal();
-    startMatchOnServer();
+    startMatchOnServer(p1Confirmed, p2Confirmed);
   };
 }
 
@@ -168,20 +183,31 @@ function showCustomConfirm(msg) {
   });
 }
 
-async function startMatchOnServer() {
+async function startMatchOnServer(confirm1 = true, confirm2 = true) {
   try {
-    const res = await fetch("http://3.110.164.208:5000/start", {
+    const res = await fetch(`${API_BASE_URL}/start`, {
       method: "POST",
       headers: {"Content-Type": "application/json"},
-      body: JSON.stringify({ player1: player1Name, player2: player2Name, mode: botMode ? "bot" : "pvp" })
+      body: JSON.stringify({
+        player1: player1Name,
+        player2: player2Name,
+        mode: botMode ? "bot" : "pvp",
+        confirm: confirm1,
+        confirm2: confirm2
+      })
     });
     const data = await res.json();
-    renderBoard(data.board);
-    dashboardDiv.style.display = "none";
-    gameDiv.style.display = "block";
-    statusDisplay.textContent = `Turn: ${player1Name} (X)`;
+    if (data.board) {
+      renderBoard(data.board);
+      dashboardDiv.style.display = "none";
+      gameDiv.style.display = "block";
+      statusDisplay.textContent = `Turn: ${player1Name} (X)`;
+    } else if (data.prompt) {
+      showToast(data.message || "Username confirmation needed", "warning");
+    }
   } catch (err) {
     console.error("Could not start game:", err);
+    showToast("Failed to connect to backend", "error");
   }
 }
 
@@ -198,7 +224,7 @@ function renderBoard(board) {
 
 async function makeMove(pos) {
   try {
-    const res = await fetch("http://3.110.164.208:5000/move", {
+    const res = await fetch(`${API_BASE_URL}/move`, {
       method: "POST",
       headers: {"Content-Type": "application/json"},
       body: JSON.stringify({ position: pos })
@@ -210,8 +236,13 @@ async function makeMove(pos) {
     } else {
       renderBoard(data.board);
       if (data.winner) {
-        statusDisplay.textContent = data.winner === "Draw" ? "It's a Draw!" : `Winner: ${data.winner}`;
-        setTimeout(() => location.reload(), 3000);
+        if (data.winner === "Draw") {
+          statusDisplay.textContent = "It's a Draw!";
+        } else {
+          const winnerName = data.winner === "X" ? player1Name : player2Name;
+          statusDisplay.textContent = `Winner: ${winnerName} (${data.winner})!`;
+        }
+        updateLeaderboard();
       } else {
         const nextName = data.next === "X" ? player1Name : player2Name;
         statusDisplay.textContent = `Turn: ${nextName} (${data.next})`;
@@ -223,6 +254,5 @@ async function makeMove(pos) {
 }
 
 function resetGame() {
-    botMode ? playWithBot(true) : startNewGame(true);
+  botMode ? playWithBot(true) : startNewGame(true);
 }
-
