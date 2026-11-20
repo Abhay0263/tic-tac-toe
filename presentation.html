@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tic-Tac-Toe Pro (Cybers Edition 1.0) - Presentation</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-dark: #080d1a;
+      --card-bg: rgba(19, 29, 51, 0.85);
+      --card-border: #1f3052;
+      --cyan: #00f2fe;
+      --cyan-glow: rgba(0, 242, 254, 0.4);
+      --purple: #a855f7;
+      --purple-glow: rgba(168, 85, 247, 0.35);
+      --green: #10b981;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: radial-gradient(circle at top right, #111a36, #080d1a 70%);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+      user-select: none;
+    }
+
+    /* Top Progress Bar */
+    .progress-bar-container {
+      width: 100%;
+      height: 5px;
+      background: rgba(255, 255, 255, 0.08);
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 100;
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 20%;
+      background: linear-gradient(90deg, var(--cyan), var(--purple));
+      box-shadow: 0 0 10px var(--cyan);
+      transition: width 0.35s ease;
+    }
+
+    /* Presentation Header */
+    header {
+      padding: 20px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+    }
+
+    .brand-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(0, 242, 254, 0.08);
+      border: 1px solid var(--cyan);
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--cyan);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .slide-counter {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    /* Slide Deck Container */
+    .deck-container {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 25px 40px 100px;
+      position: relative;
+    }
+
+    .slide {
+      display: none;
+      width: 100%;
+      max-width: 1200px;
+      animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    .slide.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(16px) scale(0.99);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    /* Common Card Styles */
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+      padding: 30px;
+      position: relative;
+    }
+
+    .card.glow-cyan {
+      border-color: rgba(0, 242, 254, 0.4);
+      box-shadow: 0 0 25px var(--cyan-glow);
+    }
+
+    .card.glow-purple {
+      border-color: rgba(168, 85, 247, 0.4);
+      box-shadow: 0 0 25px var(--purple-glow);
+    }
+
+    .card.glow-green {
+      border-color: rgba(16, 185, 129, 0.4);
+      box-shadow: 0 0 25px rgba(16, 185, 129, 0.25);
+    }
+
+    .slide-header {
+      margin-bottom: 25px;
+    }
+
+    .slide-title {
+      font-size: 2.2rem;
+      font-weight: 700;
+      background: linear-gradient(90deg, #fff, var(--cyan));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 6px;
+    }
+
+    .slide-subtitle {
+      font-size: 1.05rem;
+      color: var(--text-muted);
+    }
+
+    /* Layout Grids */
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+
+    .grid-4 {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+
+    .card-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .card-title.cyan { color: var(--cyan); }
+    .card-title.purple { color: var(--purple); }
+    .card-title.green { color: var(--green); }
+
+    ul.bullet-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    ul.bullet-list li {
+      font-size: 0.95rem;
+      color: #cbd5e1;
+      line-height: 1.5;
+      position: relative;
+      padding-left: 18px;
+    }
+
+    ul.bullet-list li::before {
+      content: "•";
+      position: absolute;
+      left: 0;
+      color: var(--cyan);
+      font-size: 1.3rem;
+      line-height: 1;
+    }
+
+    ul.bullet-list.purple-bullets li::before { color: var(--purple); }
+    ul.bullet-list.green-bullets li::before { color: var(--green); }
+
+    strong {
+      color: #ffffff;
+      font-weight: 600;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      font-family: 'JetBrains Mono', monospace;
+      background: rgba(255, 255, 255, 0.08);
+      margin-bottom: 8px;
+    }
+
+    .code-block {
+      background: #060913;
+      border: 1px solid #1e293b;
+      border-radius: 8px;
+      padding: 12px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.82rem;
+      color: #7dd3fc;
+      margin: 10px 0;
+      line-height: 1.45;
+    }
+
+    /* Hero Slide Specifics */
+    .hero-banner {
+      text-align: center;
+      padding: 40px 20px;
+      margin-bottom: 30px;
+    }
+
+    .hero-title {
+      font-size: 3.4rem;
+      font-weight: 800;
+      letter-spacing: -1px;
+      background: linear-gradient(135deg, #00f2fe 0%, #4facfe 50%, #a855f7 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 12px;
+    }
+
+    .hero-subtitle {
+      font-size: 1.35rem;
+      color: #e2e8f0;
+      margin-bottom: 8px;
+      font-weight: 400;
+    }
+
+    .hero-meta {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+    }
+
+    /* Fixed Bottom Control Bar */
+    .controls-bar {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(15px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 40px;
+      padding: 8px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+      z-index: 100;
+    }
+
+    .btn-nav {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: #fff;
+      padding: 8px 18px;
+      border-radius: 20px;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-nav:hover {
+      background: rgba(0, 242, 254, 0.2);
+      border-color: var(--cyan);
+      box-shadow: 0 0 10px var(--cyan-glow);
+    }
+
+    .btn-nav.active-btn {
+      background: linear-gradient(90deg, var(--cyan), #0284c7);
+      color: #04101e;
+      border: none;
+    }
+
+    .dot-nav {
+      display: flex;
+      gap: 8px;
+      padding: 0 8px;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.2);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .dot.active {
+      background: var(--cyan);
+      box-shadow: 0 0 8px var(--cyan);
+      transform: scale(1.25);
+    }
+
+    /* Print / Export View */
+    @media print {
+      body {
+        background: #0f172a !important;
+        color: #fff !important;
+      }
+      .controls-bar, .progress-bar-container, header {
+        display: none !important;
+      }
+      .slide {
+        display: block !important;
+        page-break-after: always;
+        margin-bottom: 50px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="progress-bar-container">
+    <div class="progress-bar" id="progressBar"></div>
+  </div>
+
+  <header>
+    <div class="brand-pill">
+      <span>⚡ Tic-Tac-Toe Pro</span>
+      <span>•</span>
+      <span>Cybers Edition 1.0</span>
+    </div>
+    <div class="slide-counter" id="slideIndicator">Slide 1 of 5</div>
+  </header>
+
+  <main class="deck-container">
+
+    <!-- SLIDE 1: Title & Executive Summary -->
+    <section class="slide active" id="slide-1">
+      <div class="card glow-cyan hero-banner">
+        <div class="badge" style="color: var(--cyan); border: 1px solid var(--cyan);">CONTAINERIZED MICROSERVICES SHOWCASE</div>
+        <h1 class="hero-title">TIC-TAC-TOE PRO</h1>
+        <p class="hero-subtitle">Cybers Edition 1.0 — Full-Stack Cloud Architecture</p>
+        <p class="hero-meta">Modern Web Client • Python Flask REST Microservice • MySQL 8 Persistence • Prometheus &amp; Grafana Observability</p>
+      </div>
+
+      <div class="grid-3">
+        <div class="card">
+          <h3 class="card-title cyan">🎮 Frontend Experience</h3>
+          <ul class="bullet-list">
+            <li><strong>Responsive Cyber UI:</strong> Modern glassmorphic dark mode styling.</li>
+            <li><strong>Dual Play Modes:</strong> Local PvP and Single-Player Bot AI.</li>
+            <li><strong>Dynamic Identity:</strong> Username conflict resolution modal.</li>
+            <li><strong>Port 8080:</strong> High-performance Nginx Alpine web server.</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h3 class="card-title purple">⚡ Backend Engine</h3>
+          <ul class="bullet-list purple-bullets">
+            <li><strong>Flask REST API:</strong> High-speed JSON endpoints on port 5000.</li>
+            <li><strong>Logic Engine:</strong> Validates turns, edge cases, win/draw matrix.</li>
+            <li><strong>Relational DB:</strong> MySQL 8 container with persistent volume.</li>
+            <li><strong>Auto-Healing:</strong> Connection ping and auto-reconnect logic.</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h3 class="card-title green">📊 DevOps &amp; Metrics</h3>
+          <ul class="bullet-list green-bullets">
+            <li><strong>Docker Compose:</strong> Multi-container isolated bridge network.</li>
+            <li><strong>Dependency Sync:</strong> Zero-dependency Python socket polling.</li>
+            <li><strong>Prometheus:</strong> Scrapes time-series metrics on port 9090.</li>
+            <li><strong>Grafana:</strong> Visual dashboard telemetry on port 3000.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 2: Architecture & Topology -->
+    <section class="slide" id="slide-2">
+      <div class="slide-header">
+        <h2 class="slide-title">System Architecture &amp; Service Topology</h2>
+        <p class="slide-subtitle">Decoupled 3-Tier Microservices with Full-Stack Observability Stack</p>
+      </div>
+
+      <div class="grid-4">
+        <div class="card glow-cyan">
+          <span class="badge" style="color:var(--cyan)">PORT 8080</span>
+          <h3 class="card-title cyan">Client Tier</h3>
+          <ul class="bullet-list">
+            <li><strong>Image:</strong> <code>nginx:alpine</code></li>
+            <li><strong>Assets:</strong> HTML5, CSS3, ES6+ JavaScript.</li>
+            <li><strong>Dynamic Origin:</strong> Auto-resolves backend API host relative to browser location.</li>
+            <li><strong>Toast System:</strong> Non-intrusive match notification overlays.</li>
+          </ul>
+        </div>
+
+        <div class="card glow-purple">
+          <span class="badge" style="color:var(--purple)">PORT 5000</span>
+          <h3 class="card-title purple">App Tier</h3>
+          <ul class="bullet-list purple-bullets">
+            <li><strong>Image:</strong> <code>python:3.10-slim</code></li>
+            <li><strong>Stack:</strong> Flask + Flask-CORS + MySQL Connector.</li>
+            <li><strong>Endpoints:</strong>
+              <div style="font-size:0.8rem; color:#94a3b8; margin-top:4px;">
+                <code>GET /health</code><br>
+                <code>POST /start</code><br>
+                <code>POST /move</code><br>
+                <code>GET /leaderboard</code>
+              </div>
+            </li>
+            <li><strong>Input Guard:</strong> Validates indices (0-8) &amp; player states.</li>
+          </ul>
+        </div>
+
+        <div class="card glow-green">
+          <span class="badge" style="color:var(--green)">PORT 3306</span>
+          <h3 class="card-title green">Data Tier</h3>
+          <ul class="bullet-list green-bullets">
+            <li><strong>Image:</strong> <code>mysql:8</code></li>
+            <li><strong>Database:</strong> <code>tic-tac-db</code></li>
+            <li><strong>Storage:</strong> Named volume <code>db_data</code> for persistent records.</li>
+            <li><strong>Healthcheck:</strong> Native <code>mysqladmin ping</code> retries.</li>
+            <li><strong>Auto-Init:</strong> Automatically executes <code>init.sql</code> on launch.</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <span class="badge" style="color:#f59e0b">PORTS 9090 / 3000</span>
+          <h3 class="card-title" style="color:#f59e0b">Observability</h3>
+          <ul class="bullet-list" style="--cyan:#f59e0b">
+            <li><strong>Prometheus (9090):</strong> Automated 5s scrape interval for metrics.</li>
+            <li><strong>Node Exporter (9100):</strong> Host hardware, CPU, and RAM telemetry.</li>
+            <li><strong>Grafana (3000):</strong> Dynamic charts &amp; saved dashboard storage.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 3: Core Features & Logic Engine -->
+    <section class="slide" id="slide-3">
+      <div class="slide-header">
+        <h2 class="slide-title">Core Gameplay &amp; Game Engine Logic</h2>
+        <p class="slide-subtitle">Edge-Case Handling, AI Bot Decisions &amp; Real-Time Identity Verification</p>
+      </div>
+
+      <div class="grid-2">
+        <div class="card glow-cyan">
+          <h3 class="card-title cyan">🤖 Game Modes &amp; Bot AI</h3>
+          <ul class="bullet-list">
+            <li><strong>PvP Mode:</strong> Smooth pass-and-play matches between two custom player handles.</li>
+            <li><strong>Bot AI Engine:</strong> Single-player mode with instant automated Bot responses.</li>
+            <li><strong>AI Move Guard:</strong> Bot never moves if the human player has already landed a winning strike or tied the game.</li>
+            <li><strong>Turn Management:</strong> Clean alternating turn coordinator with real-time UI indicator.</li>
+          </ul>
+        </div>
+
+        <div class="card glow-purple">
+          <h3 class="card-title purple">🏆 Win &amp; Saturation Draw Check</h3>
+          <ul class="bullet-list purple-bullets">
+            <li><strong>Matrix Evaluator:</strong> Scans all 8 winning combinations across rows, columns, and diagonals.</li>
+            <li><strong>Automated Draw Detection:</strong> Detects tie condition when all 9 squares fill with no line.</li>
+            <li><strong>Named Identity Display:</strong> Announces winner's actual username (e.g. <code>Winner: Alice (X)!</code>) instead of raw token strings.</li>
+            <li><strong>Out-of-Bounds Protection:</strong> Rejects negative, non-integer, or >8 coordinates.</li>
+          </ul>
+        </div>
+
+        <div class="card glow-green">
+          <h3 class="card-title green">👤 Identity &amp; Rematch Handling</h3>
+          <ul class="bullet-list green-bullets">
+            <li><strong>Pre-flight Verification:</strong> <code>/check_username</code> endpoint inspects database records prior to game initialization.</li>
+            <li><strong>Custom Confirmation Modal:</strong> Prevents new users from accidentally claiming existing players' records.</li>
+            <li><strong>Seamless Rematches:</strong> Preserves verified identity flags during rematches so game boards reset without blocking.</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h3 class="card-title cyan">📈 Live Leaderboard Engine</h3>
+          <ul class="bullet-list">
+            <li><strong>Multi-Dimensional Stats:</strong> Stores Wins, Losses, and Draws per username.</li>
+            <li><strong>Composite Ranking:</strong> Sorted in descending order by Wins, then Draws.</li>
+            <li><strong>Zero Page Reloads:</strong> Auto-refreshes leaderboard asynchronously upon match conclusion without jarring reloads.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 4: Database Design & Resilience -->
+    <section class="slide" id="slide-4">
+      <div class="slide-header">
+        <h2 class="slide-title">Database Architecture &amp; Backend Resilience</h2>
+        <p class="slide-subtitle">Zero-Downtime Reconnections, Schema Design &amp; Dependency Orchestration</p>
+      </div>
+
+      <div class="grid-2">
+        <div class="card glow-cyan">
+          <h3 class="card-title cyan">Relational Schema &amp; Storage</h3>
+          <div class="code-block">
+CREATE TABLE IF NOT EXISTS players (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(50) UNIQUE NOT NULL,
+    wins INT DEFAULT 0,
+    losses INT DEFAULT 0,
+    draws INT DEFAULT 0,
+    streak INT DEFAULT 0
+);
+          </div>
+          <ul class="bullet-list" style="margin-top: 15px;">
+            <li><strong>Automatic Initialization:</strong> Mounted to <code>/docker-entrypoint-initdb.d/init.sql</code> for instant database bootstrapping.</li>
+            <li><strong>Unique Integrity:</strong> Guarantees distinct usernames while <code>INSERT IGNORE</code> safely avoids match creation errors.</li>
+            <li><strong>Volume Retention:</strong> Data remains completely persistent across Docker container restarts via <code>db_data</code>.</li>
+          </ul>
+        </div>
+
+        <div class="card glow-purple">
+          <h3 class="card-title purple">Reliability &amp; Self-Healing</h3>
+          <ul class="bullet-list purple-bullets">
+            <li><strong>Active Connection Ping:</strong> Uses <code>conn.ping(reconnect=True)</code> prior to queries, eliminating MySQL timeout disconnects.</li>
+            <li><strong>Pure Python Dependency Polling:</strong> <code>wait-for-db.sh</code> uses standard <code>socket.create_connection</code>, removing external dependencies like <code>nc</code> (netcat).</li>
+            <li><strong>Lifecycle Health Checks:</strong> Backend container startup waits on <code>db2 (condition: service_healthy)</code>.</li>
+            <li><strong>Centralized Configuration:</strong> <code>.env</code> and <code>.env.example</code> provide clean separation of credentials.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 5: DevOps & Roadmap -->
+    <section class="slide" id="slide-5">
+      <div class="slide-header">
+        <h2 class="slide-title">DevOps Orchestration &amp; Future Roadmap</h2>
+        <p class="slide-subtitle">Containerized Production Deployment &amp; Next-Gen Architectural Goals</p>
+      </div>
+
+      <div class="grid-3">
+        <div class="card glow-cyan">
+          <h3 class="card-title cyan">🐳 Container Architecture</h3>
+          <ul class="bullet-list">
+            <li><strong>Dual Build Contexts:</strong> Dockerfile compiles cleanly from root or <code>backend/</code>.</li>
+            <li><strong>Lean Base Images:</strong> Built on <code>python:3.10-slim</code> and <code>nginx:alpine</code>.</li>
+            <li><strong>Internal Bridge Network:</strong> Services resolve securely via Docker DNS on <code>my-net2</code>.</li>
+            <li><strong>No-Cache Pip Installs:</strong> Keeps image footprint minimal and build speeds fast.</li>
+          </ul>
+        </div>
+
+        <div class="card glow-purple">
+          <h3 class="card-title purple">📡 Observability Stack</h3>
+          <ul class="bullet-list purple-bullets">
+            <li><strong>Prometheus:</strong> Autonomous time-series metrics collection on port <code>9090</code>.</li>
+            <li><strong>Node Exporter:</strong> Real-time hardware, CPU, memory, and disk telemetry on port <code>9100</code>.</li>
+            <li><strong>Grafana:</strong> Visual monitoring dashboards with persistent volume storage on port <code>3000</code>.</li>
+          </ul>
+        </div>
+
+        <div class="card glow-green">
+          <h3 class="card-title green">🚀 Future Roadmap</h3>
+          <ul class="bullet-list green-bullets">
+            <li><strong>Minimax AI Engine:</strong> Alpha-beta pruning for unbeatable bot difficulty levels.</li>
+            <li><strong>WebSockets / Socket.io:</strong> Real-time remote multiplayer room lobbies.</li>
+            <li><strong>CI/CD Cloud Pipeline:</strong> Automated GitHub Actions workflow to AWS ECS / EKS.</li>
+            <li><strong>Player Profiles:</strong> JWT-based login with historical match logs.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Navigation Bar -->
+  <div class="controls-bar">
+    <button class="btn-nav" id="prevBtn" onclick="prevSlide()">◀ Previous</button>
+    <div class="dot-nav" id="dotNav">
+      <div class="dot active" onclick="goToSlide(0)"></div>
+      <div class="dot" onclick="goToSlide(1)"></div>
+      <div class="dot" onclick="goToSlide(2)"></div>
+      <div class="dot" onclick="goToSlide(3)"></div>
+      <div class="dot" onclick="goToSlide(4)"></div>
+    </div>
+    <button class="btn-nav" id="nextBtn" onclick="nextSlide()">Next ▶</button>
+    <button class="btn-nav active-btn" onclick="toggleFullScreen()">⛶ Fullscreen</button>
+    <button class="btn-nav" onclick="window.print()">🖨 Print PDF</button>
+  </div>
+
+  <script>
+    let currentSlide = 0;
+    const slides = document.querySelectorAll('.slide');
+    const dots = document.querySelectorAll('.dot');
+    const indicator = document.getElementById('slideIndicator');
+    const progressBar = document.getElementById('progressBar');
+
+    function updateSlide() {
+      slides.forEach((s, idx) => {
+        s.classList.toggle('active', idx === currentSlide);
+      });
+      dots.forEach((d, idx) => {
+        d.classList.toggle('active', idx === currentSlide);
+      });
+      indicator.textContent = `Slide ${currentSlide + 1} of ${slides.length}`;
+      progressBar.style.width = `${((currentSlide + 1) / slides.length) * 100}%`;
+    }
+
+    function nextSlide() {
+      currentSlide = (currentSlide + 1) % slides.length;
+      updateSlide();
+    }
+
+    function prevSlide() {
+      currentSlide = (currentSlide - 1 + slides.length) % slides.length;
+      updateSlide();
+    }
+
+    function goToSlide(idx) {
+      currentSlide = idx;
+      updateSlide();
+    }
+
+    function toggleFullScreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(() => {});
+      } else {
+        if (document.exitFullscreen) {
+          document.exitFullscreen();
+        }
+      }
+    }
+
+    // Keyboard Shortcuts
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === 'Space') {
+        nextSlide();
+      } else if (e.key === 'ArrowLeft') {
+        prevSlide();
+      } else if (e.key.toLowerCase() === 'f') {
+        toggleFullScreen();
+      }
+    });
+  </script>
+</body>
+</html>
+
